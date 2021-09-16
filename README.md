@@ -290,8 +290,6 @@ subnet_zone_list   | A list containing subnet IDs and subnet zones              
 ```terraform
 module multitier_vpc {
   source               = "./multitier_vpc"
-  ibmcloud_api_key     = var.ibmcloud_api_key
-  TF_VERSION           = var.TF_VERSION
   prefix               = var.prefix
   region               = var.region
   resource_group       = var.resource_group
