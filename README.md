@@ -287,6 +287,8 @@ subnet_zone_list   | A list containing subnet IDs and subnet zones              
 
 ## As a Module in a Larger Architecture
 
+Be sure to remove the `provider` block froom [main.tf](./main.tf) before adding to an architecture.
+
 ```terraform
 module multitier_vpc {
   source               = "./multitier_vpc"
