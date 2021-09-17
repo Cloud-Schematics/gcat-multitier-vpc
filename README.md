@@ -60,8 +60,8 @@ In [variables.tf](variables.tf) the following ACL is created as the default in t
 
 ```terraform
     { 
-      name                = "tier-3-acl"
-      network_connections = ["tier-2"] 
+      name                = "db-tier-acl"
+      network_connections = ["app-tier"] 
       rules               = [
         {
           name        = "deny-all-inbound"
@@ -74,12 +74,12 @@ In [variables.tf](variables.tf) the following ACL is created as the default in t
     }
 ```
 
-In [variables.tf](variables.tf), this is the subnet tier `tier-2` declared in the `subnet_tiers` variable
+In [variables.tf](variables.tf), this is the subnet tier `app-tier` declared in the `subnet_tiers` variable
 
 ```terraform
     {
-      name     = "tier-2"
-      acl_name = "tier-2-acl"
+      name     = "app-tier"
+      acl_name = "app-tier-acl"
       subnets  = {
         zone-1 = [
           {
@@ -106,7 +106,7 @@ In [variables.tf](variables.tf), this is the subnet tier `tier-2` declared in th
     },
 ```
 
-This results in the creation of the following ACL:
+This results in the creation of the following ACL that includes rules to allow inbound traffic from and outbound traffic to each of the subnets in `app-tier`:
 
 ```terraform
 resource "ibm_is_network_acl" "multitier_acl" {
@@ -118,7 +118,7 @@ resource "ibm_is_network_acl" "multitier_acl" {
         direction   = "inbound"
         id          = "69074d80-c67f-463b-ba94-96a1656d69de"
         ip_version  = "ipv4"
-        name        = "allow-inbound-gcat-multizone-tier-2-subnet-a"
+        name        = "allow-inbound-gcat-multizone-app-tier-subnet-a"
         source      = "10.40.10.0/24"
         subnets     = 0
     }
@@ -128,7 +128,7 @@ resource "ibm_is_network_acl" "multitier_acl" {
         direction   = "outbound"
         id          = "6808b3db-4ff8-43c4-a7ef-5917a86777ad"
         ip_version  = "ipv4"
-        name        = "allow-outbound-gcat-multizone-tier-2-subnet-a"
+        name        = "allow-outbound-gcat-multizone-app-tier-subnet-a"
         source      = "0.0.0.0/0"
         subnets     = 0
     }
@@ -138,7 +138,7 @@ resource "ibm_is_network_acl" "multitier_acl" {
         direction   = "inbound"
         id          = "fa0c7adf-3529-40cd-b580-874ff333b36a"
         ip_version  = "ipv4"
-        name        = "allow-inbound-gcat-multizone-tier-2-subnet-b"
+        name        = "allow-inbound-gcat-multizone-app-tier-subnet-b"
         source      = "10.50.10.0/24"
         subnets     = 0
     }
@@ -148,7 +148,7 @@ resource "ibm_is_network_acl" "multitier_acl" {
         direction   = "outbound"
         id          = "5e2e0a36-ad2b-4a13-a87f-0281ae5d04a6"
         ip_version  = "ipv4"
-        name        = "allow-outbound-gcat-multizone-tier-2-subnet-b"
+        name        = "allow-outbound-gcat-multizone-app-tier-subnet-b"
         source      = "0.0.0.0/0"
         subnets     = 0
     }
@@ -158,7 +158,7 @@ resource "ibm_is_network_acl" "multitier_acl" {
         direction   = "inbound"
         id          = "32f322b0-1cf1-40ad-bc4e-fe900d916539"
         ip_version  = "ipv4"
-        name        = "allow-inbound-gcat-multizone-tier-2-subnet-c"
+        name        = "allow-inbound-gcat-multizone-app-tier-subnet-c"
         source      = "10.60.10.0/24"
         subnets     = 0
     }
@@ -168,7 +168,7 @@ resource "ibm_is_network_acl" "multitier_acl" {
         direction   = "outbound"
         id          = "c94a7520-95b8-446c-8189-6d7e882ccfb3"
         ip_version  = "ipv4"
-        name        = "allow-outbound-gcat-multizone-tier-2-subnet-c"
+        name        = "allow-outbound-gcat-multizone-app-tier-subnet-c"
         source      = "0.0.0.0/0"
         subnets     = 0
     }
@@ -228,24 +228,24 @@ list(
 Dynamic addresses are created for each subnet by name to ensure that modifying these lists will not result in unexpected changes to your existing infrastructure:
 
 ```terraform
-module.subnets.ibm_is_subnet.subnet["gcat-multizone-tier-1-subnet-a"]
-module.subnets.ibm_is_subnet.subnet["gcat-multizone-tier-1-subnet-b"]
-module.subnets.ibm_is_subnet.subnet["gcat-multizone-tier-1-subnet-c"]
-module.subnets.ibm_is_subnet.subnet["gcat-multizone-tier-2-subnet-a"]
-module.subnets.ibm_is_subnet.subnet["gcat-multizone-tier-2-subnet-b"]
-module.subnets.ibm_is_subnet.subnet["gcat-multizone-tier-2-subnet-c"]
-module.subnets.ibm_is_subnet.subnet["gcat-multizone-tier-3-subnet-a"]
-module.subnets.ibm_is_subnet.subnet["gcat-multizone-tier-3-subnet-b"]
-module.subnets.ibm_is_subnet.subnet["gcat-multizone-tier-3-subnet-c"]
-module.subnets.ibm_is_vpc_address_prefix.subnet_prefix["gcat-multizone-tier-1-subnet-a"]
-module.subnets.ibm_is_vpc_address_prefix.subnet_prefix["gcat-multizone-tier-1-subnet-b"]
-module.subnets.ibm_is_vpc_address_prefix.subnet_prefix["gcat-multizone-tier-1-subnet-c"]
-module.subnets.ibm_is_vpc_address_prefix.subnet_prefix["gcat-multizone-tier-2-subnet-a"]
-module.subnets.ibm_is_vpc_address_prefix.subnet_prefix["gcat-multizone-tier-2-subnet-b"]
-module.subnets.ibm_is_vpc_address_prefix.subnet_prefix["gcat-multizone-tier-2-subnet-c"]
-module.subnets.ibm_is_vpc_address_prefix.subnet_prefix["gcat-multizone-tier-3-subnet-a"]
-module.subnets.ibm_is_vpc_address_prefix.subnet_prefix["gcat-multizone-tier-3-subnet-b"]
-module.subnets.ibm_is_vpc_address_prefix.subnet_prefix["gcat-multizone-tier-3-subnet-c"]
+module.subnets.ibm_is_subnet.subnet["gcat-multizone-web-tier-subnet-a"]
+module.subnets.ibm_is_subnet.subnet["gcat-multizone-web-tier-subnet-b"]
+module.subnets.ibm_is_subnet.subnet["gcat-multizone-web-tier-subnet-c"]
+module.subnets.ibm_is_subnet.subnet["gcat-multizone-app-tier-subnet-a"]
+module.subnets.ibm_is_subnet.subnet["gcat-multizone-app-tier-subnet-b"]
+module.subnets.ibm_is_subnet.subnet["gcat-multizone-app-tier-subnet-c"]
+module.subnets.ibm_is_subnet.subnet["gcat-multizone-db-tier-subnet-a"]
+module.subnets.ibm_is_subnet.subnet["gcat-multizone-db-tier-subnet-b"]
+module.subnets.ibm_is_subnet.subnet["gcat-multizone-db-tier-subnet-c"]
+module.subnets.ibm_is_vpc_address_prefix.subnet_prefix["gcat-multizone-web-tier-subnet-a"]
+module.subnets.ibm_is_vpc_address_prefix.subnet_prefix["gcat-multizone-web-tier-subnet-b"]
+module.subnets.ibm_is_vpc_address_prefix.subnet_prefix["gcat-multizone-web-tier-subnet-c"]
+module.subnets.ibm_is_vpc_address_prefix.subnet_prefix["gcat-multizone-app-tier-subnet-a"]
+module.subnets.ibm_is_vpc_address_prefix.subnet_prefix["gcat-multizone-app-tier-subnet-b"]
+module.subnets.ibm_is_vpc_address_prefix.subnet_prefix["gcat-multizone-app-tier-subnet-c"]
+module.subnets.ibm_is_vpc_address_prefix.subnet_prefix["gcat-multizone-db-tier-subnet-a"]
+module.subnets.ibm_is_vpc_address_prefix.subnet_prefix["gcat-multizone-db-tier-subnet-b"]
+module.subnets.ibm_is_vpc_address_prefix.subnet_prefix["gcat-multizone-db-tier-subnet-c"]
 ```
 
 ### Address Prefixes
@@ -265,9 +265,9 @@ prefix               | string                                                   
 region               | string                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  | Region where VPC will be created                                                                                                                                                                                                                                                                                                                                                |           | us-south
 resource_group       | string                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  | Name of resource group where all infrastructure will be provisioned                                                                                                                                                                                                                                                                                                             |           | asset-development
 classic_access       | bool                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    | Enable VPC Classic Access. Note: only one VPC per region can have classic access                                                                                                                                                                                                                                                                                                |           | false
-subnet_tiers         | list( object({ name = string acl_name = string subnets = object({ zone-1 = list( object({ name = string cidr = string public_gateway = optional(bool) }) ) zone-2 = list( object({ name = string cidr = string public_gateway = optional(bool) }) ) zone-3 = list( object({ name = string cidr = string public_gateway = optional(bool) }) ) }) }) )                                                                                                                                                                                                                                                    | List of subnets tiers for the vpc.                                                                                                                                                                                                                                                                                                                                              |           | [<br>{<br>name = "tier-1"<br>acl_name = "tier-1-acl"<br>subnets = {<br>zone-1 = [<br>{<br>name = "subnet-a"<br>cidr = "10.10.10.0/24"<br>public_gateway = true<br>}<br>],<br>zone-2 = [<br>{<br>name = "subnet-b"<br>cidr = "10.20.10.0/24"<br>public_gateway = true<br>}<br>],<br>zone-3 = [<br>{<br>name = "subnet-c"<br>cidr = "10.30.10.0/24"<br>public_gateway = true<br>}<br>]<br>}<br>},<br>{<br>name = "tier-2"<br>acl_name = "tier-2-acl"<br>subnets = {<br>zone-1 = [<br>{<br>name = "subnet-a"<br>cidr = "10.40.10.0/24"<br>public_gateway = false<br>}<br>],<br>zone-2 = [<br>{<br>name = "subnet-b"<br>cidr = "10.50.10.0/24"<br>public_gateway = false<br>}<br>],<br>zone-3 = [<br>{<br>name = "subnet-c"<br>cidr = "10.60.10.0/24"<br>public_gateway = false<br>}<br>]<br>}<br>},<br>{<br>name = "tier-3"<br>acl_name = "tier-3-acl"<br>subnets = {<br>zone-1 = [<br>{<br>name = "subnet-a"<br>cidr = "10.70.10.0/24"<br>public_gateway = false<br>}<br>],<br>zone-2 = [<br>{<br>name = "subnet-b"<br>cidr = "10.80.10.0/24"<br>public_gateway = false<br>}<br>],<br>zone-3 = [<br>{<br>name = "subnet-c"<br>cidr = "10.90.10.0/24"<br>public_gateway = false<br>}<br>]<br>}<br>}<br>]
+subnet_tiers         | list( object({ name = string acl_name = string subnets = object({ zone-1 = list( object({ name = string cidr = string public_gateway = optional(bool) }) ) zone-2 = list( object({ name = string cidr = string public_gateway = optional(bool) }) ) zone-3 = list( object({ name = string cidr = string public_gateway = optional(bool) }) ) }) }) )                                                                                                                                                                                                                                                    | List of subnets tiers for the vpc.                                                                                                                                                                                                                                                                                                                                              |           | [<br>{<br>name = "web-tier"<br>acl_name = "web-tier-acl"<br>subnets = {<br>zone-1 = [<br>{<br>name = "subnet-a"<br>cidr = "10.10.10.0/24"<br>public_gateway = true<br>}<br>],<br>zone-2 = [<br>{<br>name = "subnet-b"<br>cidr = "10.20.10.0/24"<br>public_gateway = true<br>}<br>],<br>zone-3 = [<br>{<br>name = "subnet-c"<br>cidr = "10.30.10.0/24"<br>public_gateway = true<br>}<br>]<br>}<br>},<br>{<br>name = "app-tier"<br>acl_name = "app-tier-acl"<br>subnets = {<br>zone-1 = [<br>{<br>name = "subnet-a"<br>cidr = "10.40.10.0/24"<br>public_gateway = false<br>}<br>],<br>zone-2 = [<br>{<br>name = "subnet-b"<br>cidr = "10.50.10.0/24"<br>public_gateway = false<br>}<br>],<br>zone-3 = [<br>{<br>name = "subnet-c"<br>cidr = "10.60.10.0/24"<br>public_gateway = false<br>}<br>]<br>}<br>},<br>{<br>name = "db-tier"<br>acl_name = "db-tier-acl"<br>subnets = {<br>zone-1 = [<br>{<br>name = "subnet-a"<br>cidr = "10.70.10.0/24"<br>public_gateway = false<br>}<br>],<br>zone-2 = [<br>{<br>name = "subnet-b"<br>cidr = "10.80.10.0/24"<br>public_gateway = false<br>}<br>],<br>zone-3 = [<br>{<br>name = "subnet-c"<br>cidr = "10.90.10.0/24"<br>public_gateway = false<br>}<br>]<br>}<br>}<br>]
 use_public_gateways  | object({ zone-1 = optional(bool) zone-2 = optional(bool) zone-3 = optional(bool) })                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     | Create a public gateway in any of the three zones with `true`.                                                                                                                                                                                                                                                                                                                  |           | {<br>zone-1 = true<br>zone-2 = true<br>zone-3 = true<br>}
-network_acls         | list( object({ name = string network_connections = optional(list(string)) rules = list( object({ name = string action = string destination = string direction = string source = string tcp = optional( object({ port_max = optional(number) port_min = optional(number) source_port_max = optional(number) source_port_min = optional(number) }) ) udp = optional( object({ port_max = optional(number) port_min = optional(number) source_port_max = optional(number) source_port_min = optional(number) }) ) icmp = optional( object({ type = optional(number) code = optional(number) }) ) }) ) }) ) | List of ACLs to create. Rules can be automatically created to allow inbound and outbound traffic from a VPC tier by adding the name of that tier to the `network_connections` list. Rules automatically generated by these network connections will be added at the beginning of a list, and will be applied to traffic first. At least one rule must be provided for each ACL. |           | [<br>{<br>name = "tier-1-acl"<br>network_connections = ["tier-2"]<br>rules = [<br>{<br>name = "allow-all-inbound"<br>action = "allow"<br>direction = "inbound"<br>destination = "0.0.0.0/0"<br>source = "0.0.0.0/0"<br>},<br>{<br>name = "allow-all-outbound"<br>action = "allow"<br>direction = "outbound"<br>destination = "0.0.0.0/0"<br>source = "0.0.0.0/0"<br>}<br>]<br>},<br>{<br>name = "tier-2-acl"<br>network_connections = ["tier-1",<br>"tier-3"]<br>rules = [<br>{<br>name = "deny-all-inbound"<br>action = "deny"<br>direction = "inbound"<br>destination = "0.0.0.0/0"<br>source = "0.0.0.0/0"<br>}<br>]<br>},<br>{<br>name = "tier-3-acl"<br>network_connections = ["tier-2"]<br>rules = [<br>{<br>name = "deny-all-inbound"<br>action = "deny"<br>direction = "inbound"<br>destination = "0.0.0.0/0"<br>source = "0.0.0.0/0"<br>}<br>]<br>}<br>]
+network_acls         | list( object({ name = string network_connections = optional(list(string)) rules = list( object({ name = string action = string destination = string direction = string source = string tcp = optional( object({ port_max = optional(number) port_min = optional(number) source_port_max = optional(number) source_port_min = optional(number) }) ) udp = optional( object({ port_max = optional(number) port_min = optional(number) source_port_max = optional(number) source_port_min = optional(number) }) ) icmp = optional( object({ type = optional(number) code = optional(number) }) ) }) ) }) ) | List of ACLs to create. Rules can be automatically created to allow inbound and outbound traffic from a VPC tier by adding the name of that tier to the `network_connections` list. Rules automatically generated by these network connections will be added at the beginning of a list, and will be web-tierlied to traffic first. At least one rule must be provided for each ACL. |           | [<br>{<br>name = "web-tier-acl"<br>network_connections = ["app-tier"]<br>rules = [<br>{<br>name = "allow-all-inbound"<br>action = "allow"<br>direction = "inbound"<br>destination = "0.0.0.0/0"<br>source = "0.0.0.0/0"<br>},<br>{<br>name = "allow-all-outbound"<br>action = "allow"<br>direction = "outbound"<br>destination = "0.0.0.0/0"<br>source = "0.0.0.0/0"<br>}<br>]<br>},<br>{<br>name = "app-tier-acl"<br>network_connections = ["web-tier",<br>"db-tier"]<br>rules = [<br>{<br>name = "deny-all-inbound"<br>action = "deny"<br>direction = "inbound"<br>destination = "0.0.0.0/0"<br>source = "0.0.0.0/0"<br>}<br>]<br>},<br>{<br>name = "db-tier-acl"<br>network_connections = ["app-tier"]<br>rules = [<br>{<br>name = "deny-all-inbound"<br>action = "deny"<br>direction = "inbound"<br>destination = "0.0.0.0/0"<br>source = "0.0.0.0/0"<br>}<br>]<br>}<br>]
 security_group_rules | list( object({ name = string direction = string remote = string tcp = optional( object({ port_max = optional(number) port_min = optional(number) }) ) udp = optional( object({ port_max = optional(number) port_min = optional(number) }) ) icmp = optional( object({ type = optional(number) code = optional(number) }) ) }) )                                                                                                                                                                                                                                                                         | A list of security group rules to be added to the default vpc security group                                                                                                                                                                                                                                                                                                    |           | [<br>{<br>name = "allow-inbound-ping"<br>direction = "inbound"<br>remote = "0.0.0.0/0"<br>icmp = {<br>type = 8<br>}<br>},<br>{<br>name = "allow-inbound-ssh"<br>direction = "inbound"<br>remote = "0.0.0.0/0"<br>tcp = {<br>port_min = 22<br>port_max = 22<br>}<br>},<br>]
 
 ---

@@ -6,8 +6,8 @@ resource_group="asset-development"
 classic_access=false
 subnet_tiers=[ 
   { 
-    name = "tier-1" 
-    acl_name = "tier-1-acl" 
+    name = "web-tier" 
+    acl_name = "web-tier-acl" 
     subnets = { 
       zone-1 = [ 
         { 
@@ -33,8 +33,8 @@ subnet_tiers=[
     } 
   }, 
   { 
-    name = "tier-2" 
-    acl_name = "tier-2-acl" 
+    name = "app-tier" 
+    acl_name = "app-tier-acl" 
     subnets = { 
       zone-1 = [ 
         { 
@@ -60,8 +60,8 @@ subnet_tiers=[
     } 
   },
   { 
-    name = "tier-3" 
-    acl_name = "tier-3-acl" 
+    name = "db-tier" 
+    acl_name = "db-tier-acl" 
     subnets = { 
       zone-1 = [ 
         { 
@@ -95,8 +95,8 @@ use_public_gateways={
 }
 network_acls=[
   { 
-    name                = "tier-1-acl"
-    network_connections = ["tier-2"] 
+    name                = "web-tier-acl"
+    network_connections = ["app-tier"] 
     rules               = [
       {
         name        = "allow-all-inbound"
@@ -115,8 +115,8 @@ network_acls=[
     ]
   },
   { 
-    name                = "tier-2-acl"
-    network_connections = ["tier-1", "tier-3"] 
+    name                = "app-tier-acl"
+    network_connections = ["web-tier", "db-tier"] 
     rules               = [
       {
         name        = "deny-all-inbound"
@@ -128,8 +128,8 @@ network_acls=[
     ]
   },
   { 
-    name                = "tier-3-acl"
-    network_connections = ["tier-2"] 
+    name                = "db-tier-acl"
+    network_connections = ["app-tier"] 
     rules               = [
       {
         name        = "deny-all-inbound"
