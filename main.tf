@@ -127,7 +127,8 @@ locals {
       [
         # For each subnet in each tier
         for subnet in tier.subnets[zone]:
-        # Create a new object where insteac of the name being the subnet name, it will be the tier and the subnet name together
+        # Merge together a new object from the existing fields
+        # but with a new name and an ACL ID 
         merge(
           # Add all fields except for name to new object
           {
